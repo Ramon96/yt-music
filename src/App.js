@@ -18,7 +18,7 @@ function App() {
       <CssBaseline />
       <Container maxWidth="md">
         <header>
-          <Typography variant="h1">
+          <Typography variant="h1" component="h1">
             Offline Playlists
         </Typography>
         </header>

@@ -10,14 +10,15 @@ import {
 // mui components
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
-
 import Box from '@mui/material/Box';
-
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
 import Fab from '@mui/material/Fab';
 import CheckIcon from '@mui/icons-material/Check';
 import SearchIcon from '@mui/icons-material/Search';
 import { green } from '@mui/material/colors';
-
+import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
 export function Playlist() {
@@ -51,7 +52,6 @@ export function Playlist() {
 
     return (
     <div>
-        {/* {console.log(playlist)} */}
         <form onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={2} direction="row" my={2}>
                 <TextField 
@@ -82,26 +82,46 @@ export function Playlist() {
                         />
                     }
                 </Box>
-                {/* <Button 
-                    variant="text" 
-                    type="submit"
-                >
-                    Submit
-                </Button> */}
             </Stack>
         </form>
 
         {/* TODO: maak hier een component van */}
-        {console.log(playlist.playlist)}
         {playlist.playlist.length === 0 
             ? (
                 <Stack my={2}>
                     No playlist imported yet.
                 </Stack>
             ) : (
-                <Stack my={2}>
-                    <h1>Playlist found</h1>
-                </Stack>
+                <>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                        Total songs: {playlist.playlist.length}
+                    </Typography>
+                    <Stack my={2} spacing={4}>
+                        {playlist.playlist.filter(song => (song.snippet.title !== "Deleted video")).map((song, index) => (
+                            <Card 
+                                key={index} 
+                                sx={{ display: 'flex' }}
+                            >
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <CardMedia
+                                        sx={{ width: 151 }}
+                                        component="img"
+                                        image={song.snippet.thumbnails.default.url}
+                                        alt={song.snippet.title}
+                                    />
+                                </Box>
+                                <CardContent sx={{ flex: '1 0 auto' }}>
+                                    <Typography variant="h5" component="h2">
+                                        {song.snippet.title}
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary" component="p">
+                                        {song.snippet.videoOwnerChannelTitle}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </Stack>
+                </>
             )
         }
     </div>

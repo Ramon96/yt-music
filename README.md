@@ -1,10 +1,10 @@
 ## Todo's
 
 - [x] Fetch playlists from youtube hardcoded code
-- [ ] Fetch playlists from youtube with given link 
-- [ ] Show a list of the fetched songs
+- [x] Fetch playlists from youtube with given link 
+- [x] Show a list of the fetched songs
 - [x] append songs to the list if there are more than 50
-- [ ] Being able to remove from that list
+- [ ] Being able to remove from that list (and remove from yt playlist)
 - [ ] Choosing a folder where to download
 - [ ] Loop over the chosen songs and download them
 - [ ] Open a folder with installed songs
