@@ -15,8 +15,10 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Fab from '@mui/material/Fab';
+import Button from '@mui/material/Button';
 import CheckIcon from '@mui/icons-material/Check';
 import SearchIcon from '@mui/icons-material/Search';
+import SaveIcon from '@mui/icons-material/Save';
 import { green } from '@mui/material/colors';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -89,13 +91,18 @@ export function Playlist() {
         {playlist.playlist.length === 0 
             ? (
                 <Stack my={2}>
-                    No playlist imported yet.
+                    No playlist found.
                 </Stack>
             ) : (
                 <>
-                    <Typography variant="body2" color="textSecondary" component="p">
-                        Total songs: {playlist.playlist.length}
-                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography pb={2} variant="body2" color="textSecondary" component="p">
+                            Total songs: {playlist.playlist.length}
+                        </Typography>
+                        <Button variant="contained" startIcon={<SaveIcon/>}>
+                            Save playlist
+                        </Button>
+                    </Box>
                     <Stack my={2} spacing={4}>
                         {playlist.playlist.filter(song => (song.snippet.title !== "Deleted video")).map((song, index) => (
                             <Card 
@@ -104,20 +111,22 @@ export function Playlist() {
                             >
                                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                     <CardMedia
-                                        sx={{ width: 151 }}
+                                        sx={{ width: 185 }}
                                         component="img"
-                                        image={song.snippet.thumbnails.default.url}
+                                        image={song.snippet.thumbnails.high.url}
                                         alt={song.snippet.title}
                                     />
                                 </Box>
-                                <CardContent sx={{ flex: '1 0 auto' }}>
-                                    <Typography variant="h5" component="h2">
-                                        {song.snippet.title}
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary" component="p">
-                                        {song.snippet.videoOwnerChannelTitle}
-                                    </Typography>
-                                </CardContent>
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <CardContent sx={{ flex: '1 0 auto' }}>
+                                        <Typography variant="h5" component="h2">
+                                            {song.snippet.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary" component="p">
+                                            {song.snippet.videoOwnerChannelTitle}
+                                        </Typography>
+                                    </CardContent>
+                                </Box>
                             </Card>
                         ))}
                     </Stack>
