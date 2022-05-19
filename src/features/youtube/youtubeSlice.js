@@ -3,18 +3,20 @@ import { RootState } from '../../app/store';
 
 const YOUTUBE_PLAYLIST_ITEMS_API = 'https://www.googleapis.com/youtube/v3/playlistItems';
 const YOUTUBE_API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
-const YOUTUBE_PLAYLIST_ID = "PLrIbvYfRNoqXKmAe7EFLWaH2Gi22-GSwg";
+// const YOUTUBE_PLAYLIST_ID = "PLrIbvYfRNoqXKmAe7EFLWaH2Gi22-GSwg";
 
 export const getPlaylist = createAsyncThunk(
     'yt/getPlaylist', 
-    async() => {
-        const response = await fetch(`${YOUTUBE_PLAYLIST_ITEMS_API}?key=${YOUTUBE_API_KEY}&playlistId=${YOUTUBE_PLAYLIST_ID}&part=snippet,contentDetails&maxResults=50`);
+    async(link) => {
+        const id = link.split('=')[1];
+
+        const response = await fetch(`${YOUTUBE_PLAYLIST_ITEMS_API}?key=${YOUTUBE_API_KEY}&playlistId=${id}&part=snippet,contentDetails&maxResults=50`);
 
         const data = await response.json();
         let nextPageData;
 
         while(data.nextPageToken) {
-            const nextPageResponse = await fetch(`${YOUTUBE_PLAYLIST_ITEMS_API}?key=${YOUTUBE_API_KEY}&playlistId=${YOUTUBE_PLAYLIST_ID}&part=snippet,contentDetails&maxResults=50&pageToken=${data.nextPageToken}`);
+            const nextPageResponse = await fetch(`${YOUTUBE_PLAYLIST_ITEMS_API}?key=${YOUTUBE_API_KEY}&playlistId=${id}&part=snippet,contentDetails&maxResults=50&pageToken=${data.nextPageToken}`);
             nextPageData = await nextPageResponse.json();
             data.items = [...data.items, ...nextPageData.items];
             data.nextPageToken = nextPageData.nextPageToken;
