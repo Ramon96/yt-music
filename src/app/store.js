@@ -1,7 +1,9 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import youtubeReducer from '../features/youtube/youtubeSlice';
 
 export const store = configureStore({
   reducer: {
+    youtube: youtubeReducer,
   },
 });
 
