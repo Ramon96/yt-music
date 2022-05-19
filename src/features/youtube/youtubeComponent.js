@@ -23,16 +23,23 @@ import { green } from '@mui/material/colors';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
+import Dialog, { DialogProps } from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+
 export function Playlist() {
     const dispatch = useAppDispatch();
     const playlist = useAppSelector(playlistState);
+    const { register, unregister, handleSubmit } = useForm();
+    const [open, setOpen] = useState(false);
 
-    const { register, handleSubmit } = useForm();
-  
-    // useEffect(() => {
-    // // dispatch(getPlaylist("https://www.youtube.com/playlist?list=PLrIbvYfRNoqXKmAe7EFLWaH2Gi22-GSwg"))
-    // }, [dispatch]);
-
+    // Styling
     const submitSx = {
         ...(playlist.status === "success" && {
           bgcolor: green[500],
@@ -42,14 +49,39 @@ export function Playlist() {
         }),
       };
 
+
+    //Handlers
     const onSubmit = (data) => {
-        //check if we got a valid link
         if(!data.link.includes('https://www.youtube.com/playlist?list=')) { 
             alert('Please enter a valid youtube playlist link');
             return;
         }
 
-      dispatch(getPlaylist(data.link))
+        dispatch(getPlaylist(data.link))
+            .then(() => {
+                unregister('link');
+            });
+    };
+
+    const onSubmitSave = (data) => {
+        const songs = data.songs;
+
+        const downloadList = Object.entries(songs).filter(song => {
+            return song[1] === true;
+        }).map(song => {
+            return song[0];
+        });
+
+
+        console.log(downloadList);
+    }
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
     };
 
     return (
@@ -87,6 +119,36 @@ export function Playlist() {
             </Stack>
         </form>
 
+        <Dialog open={open} onClose={handleClose}>
+            <form onSubmit={handleSubmit(onSubmitSave)}>
+                <DialogTitle>Save Playlist</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Select the songs you wish to save
+                    </DialogContentText>
+                    <FormGroup>
+                        {playlist.playlist.filter(song => (song.snippet.title !== "Deleted video")).map((song, index) => (
+                            <FormControlLabel
+                                key={index}
+                                control={
+                                    <Checkbox defaultChecked />
+                                }
+                                label={song.snippet.title}
+                                {...register(`songs.${song.contentDetails.videoId}`)}
+                            />
+                            ))}
+                    </FormGroup>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        Cancel
+                    </Button>
+                    <Button type="submit" color="primary">
+                        Save
+                    </Button>
+                </DialogActions>
+            </form>
+        </Dialog>
         {/* TODO: maak hier een component van */}
         {playlist.playlist.length === 0 
             ? (
@@ -99,15 +161,15 @@ export function Playlist() {
                         <Typography pb={2} variant="body2" color="textSecondary" component="p">
                             Total songs: {playlist.playlist.length}
                         </Typography>
-                        <Button variant="contained" startIcon={<SaveIcon/>}>
+                        <Button variant="contained" startIcon={<SaveIcon/>} onClick={handleClickOpen}>
                             Save playlist
                         </Button>
                     </Box>
                     <Stack my={2} spacing={4}>
                         {playlist.playlist.filter(song => (song.snippet.title !== "Deleted video")).map((song, index) => (
                             <Card 
-                                key={index} 
-                                sx={{ display: 'flex' }}
+                            key={index} 
+                            sx={{ display: 'flex' }}
                             >
                                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                     <CardMedia
