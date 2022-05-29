@@ -11,5 +11,6 @@
 
 ## Post MVP
 
+- [ ] option to check and uncheck all checkboxes
+- [ ] disable clicking background from modal when downloading
 - [ ] Play the song in the browser
-- [ ] Remove the song from the list (and from the playlist on yt)
