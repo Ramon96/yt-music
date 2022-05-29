@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
  
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import {
     getPlaylist,
+    postPlaylist,
+    resetZipState,
     playlistState,
 } from './youtubeSlice';
+
+import loading from '../../loading.gif';
+import error from '../../error.gif';
+import success from '../../success.gif';
 
 // mui components
 import TextField from '@mui/material/TextField';
@@ -23,7 +29,7 @@ import { green } from '@mui/material/colors';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import Dialog, { DialogProps } from '@mui/material/Dialog';
+import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
@@ -58,9 +64,9 @@ export function Playlist() {
         }
 
         dispatch(getPlaylist(data.link))
-            .then(() => {
-                unregister('link');
-            });
+        .then(() => {
+            unregister('link');
+        });
     };
 
     const onSubmitSave = (data) => {
@@ -72,8 +78,29 @@ export function Playlist() {
             return song[0];
         });
 
+        const requestData = {
+            songs: downloadList,
+            name: playlist.playlistName
+        }
 
-        console.log(downloadList);
+        dispatch(postPlaylist(requestData))
+        .then((res) => {
+            const blob = new Blob([res.payload], { type: 'application/zip' });
+
+            if(!res.error)
+            {
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download =  playlist.playlistName + '.zip';
+                document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+                a.click();    
+                a.remove();  //afterwards we remove the element again   
+            }
+            else {
+                alert(res.error.message);
+            }
+        });
     }
 
     const handleClickOpen = () => {
@@ -81,6 +108,7 @@ export function Playlist() {
     };
 
     const handleClose = () => {
+        dispatch(resetZipState());
         setOpen(false);
     };
 
@@ -121,32 +149,98 @@ export function Playlist() {
 
         <Dialog open={open} onClose={handleClose}>
             <form onSubmit={handleSubmit(onSubmitSave)}>
-                <DialogTitle>Save Playlist</DialogTitle>
+                <DialogTitle>Save Playlist - {playlist.playlistName}</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        Select the songs you wish to save
-                    </DialogContentText>
-                    <FormGroup>
-                        {playlist.playlist.filter(song => (song.snippet.title !== "Deleted video")).map((song, index) => (
-                            <FormControlLabel
-                                key={index}
-                                control={
-                                    <Checkbox defaultChecked />
-                                }
-                                label={song.snippet.title}
-                                {...register(`songs.${song.contentDetails.videoId}`)}
+                    {playlist.zipStatus === "loading" && 
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Box 
+                                component="img"
+                                src={loading}
+                                alt="Loading"
                             />
-                            ))}
-                    </FormGroup>
+                            Downloading and compressing playlist...
+                        </Box>
+                    }
+                    {playlist.zipStatus === "success" &&
+                        <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Box 
+                            component="img"
+                            src={success}
+                            alt="Success"
+                            sx={{
+                                width: '100%',
+                            }}
+                        />
+                        Enjoy the bangers!
+                    </Box>
+                    }
+                    {playlist.zipStatus === "error" &&
+                        <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Box 
+                            component="img"
+                            src={error}
+                            alt="Error"
+                            sx={{
+                                width: '100%',
+                            }}
+                        />
+                        Error occured, try again later or contact developer
+                    </Box>
+                    }
+                    {playlist.zipStatus === '' &&
+                        <>
+                            <DialogContentText>
+                                Select the songs you wish to save
+                            </DialogContentText>
+                            <FormGroup>
+                                {playlist.playlist.filter(song => (song.snippet.title !== "Deleted video")).map((song, index) => (
+                                    <FormControlLabel
+                                        key={index}
+                                        control={
+                                            <Checkbox defaultChecked />
+                                        }
+                                        label={song.snippet.title}
+                                        {...register(`songs.${song.contentDetails.videoId}`)}
+                                    />
+                                    ))}
+                            </FormGroup>
+                        </>
+                    }
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} color="primary">
-                        Cancel
-                    </Button>
-                    <Button type="submit" color="primary">
-                        Save
-                    </Button>
-                </DialogActions>
+                {playlist.zipStatus === '' ?
+                    <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                            Cancel
+                        </Button>
+                        <Button type="submit" color="primary">
+                            Save
+                        </Button>
+                    </DialogActions>
+                    :
+                    <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                            Close
+                        </Button>
+                    </DialogActions>
+                }
             </form>
         </Dialog>
         {/* TODO: maak hier een component van */}
@@ -158,6 +252,9 @@ export function Playlist() {
             ) : (
                 <>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography pb={2} variant="body1" color="textPrimary" component="p">
+                            {playlist.playlistName}
+                        </Typography>
                         <Typography pb={2} variant="body2" color="textSecondary" component="p">
                             Total songs: {playlist.playlist.length}
                         </Typography>

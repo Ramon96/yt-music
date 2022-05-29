@@ -1,7 +1,6 @@
 // Components
 import { Playlist } from './features/youtube/youtubeComponent';
 
-
 //MUI components
 import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';

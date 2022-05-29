@@ -6,8 +6,8 @@
 - [x] Show a list of the fetched songs
 - [x] Button that opens a modal with the song list and checkboxes
 - [x] Make a selection of the songs and make a new array out of them
-- [ ] Download selection to the computer
-- [ ] Choosing a folder where to download
+- [x] Download selection to the computer
+- [x] Choosing a folder where to download
 
 ## Post MVP
 

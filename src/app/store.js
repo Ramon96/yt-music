@@ -1,10 +1,13 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { configureStore, ThunkAction, Action, getDefaultMiddleware } from '@reduxjs/toolkit';
 import youtubeReducer from '../features/youtube/youtubeSlice';
 
 export const store = configureStore({
   reducer: {
     youtube: youtubeReducer,
   },
+  middleware: getDefaultMiddleware({
+    serializableCheck: false
+    }),
 });
 
 export type AppDispatch = typeof store.dispatch;
